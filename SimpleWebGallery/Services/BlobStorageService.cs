@@ -34,17 +34,17 @@ namespace SimpleWebGallery.Services
             using (Stream uploadStream = fileUpload.OpenReadStream())
             {
                 await blob.UploadFromStreamAsync(uploadStream);
-            }          
+            }
         }
 
         public async Task<IEnumerable<string>> RetrieveImageBlobUrls()
         {
             List<string> imageUrls = new List<string>();
-            CloudBlobContainer container = _blobClient.GetContainerReference(_storageConfig.ImageContainer);
-
             BlobContinuationToken continuationToken = null;
-
             BlobResultSegment resultSegment = null;
+            
+            CloudBlobContainer container = _blobClient.GetContainerReference(_storageConfig.ImageContainer);
+            await container.CreateIfNotExistsAsync();
 
             do
             {
@@ -54,8 +54,7 @@ namespace SimpleWebGallery.Services
                 {
                     imageUrls.Add(blobItem.StorageUri.PrimaryUri.ToString());
                 }
-
-                //Get the continuation token.
+                
                 continuationToken = resultSegment.ContinuationToken;
             }
 
